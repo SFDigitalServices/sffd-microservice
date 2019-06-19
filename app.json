@@ -1,0 +1,13 @@
+{
+    "name": "sffd-microservice-py",
+    "scripts": {},
+    "env": {},
+    "formation": {},
+    "addons": [],
+    "buildpacks": [
+      {
+        "url": "heroku/python"
+      }
+    ],
+    "stack": "heroku-18"
+  }
