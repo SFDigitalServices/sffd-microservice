@@ -16,7 +16,7 @@ def start_service():
     # Initialize Falcon
     api = falcon.API()
     api.add_route('/records', Records())
-    api.add_route('/records/{id}', Record())
+    # api.add_route('/records/{id}', Record())
     api.add_sink(default_error, '')
 
     api.req_options.auto_parse_form_urlencoded = True
