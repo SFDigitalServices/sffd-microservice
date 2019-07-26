@@ -90,6 +90,15 @@ def client():
     """ client fixture """
     return testing.TestClient(service.microservice.start_service())
 
+def test_default_error(client):
+    """Test default error response"""
+    response = client.simulate_get('/some_page_that_does_not_exist')
+
+    assert response.status_code == 404
+
+    expected_msg_error = jsend.error('404 - Not Found')
+    assert json.loads(response.content) == expected_msg_error
+
 def test_get_records(client):
     # happy path
     with patch('service.resources.records.FireRequest.get') as mock_get:
