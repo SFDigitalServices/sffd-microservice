@@ -11,7 +11,7 @@ class Records():
     ERROR_MSG = 'There was a problem communicating with the fired db api'
     
     def on_get(self, req, resp):
-        response = FireRequest().get()
+        response = FireRequest.get()
         if response.status_code == 200:
             resp.body = json.dumps(jsend.success(response.json()))
         else:
@@ -24,7 +24,7 @@ class Records():
         }
         apiParams.update(req.params)
 
-        response = FireRequest().post(json=apiParams)
+        response = FireRequest.post(json=apiParams)
 
         if response and response.status_code == 200:
             id = response.headers.get('id', False)
