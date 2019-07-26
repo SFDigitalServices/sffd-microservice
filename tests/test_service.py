@@ -7,8 +7,10 @@ import falcon
 from falcon import testing
 import service.microservice
 from unittest.mock import patch
-from service.resources import records
+from service.resources.fire_request import FireRequest
+from service.resources.records import Records
 from requests.models import Response
+from http.client import responses
 
 MOCK_RECORDS_LISTING = """{  
     "items":[
@@ -99,7 +101,24 @@ def test_default_error(client):
     expected_msg_error = jsend.error('404 - Not Found')
     assert json.loads(response.content) == expected_msg_error
 
+def test_fire_request_get():
+    with patch('service.resources.fire_request.requests.get') as mock_get:
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = json.loads(MOCK_RECORDS_LISTING)
+
+        resp = FireRequest.get()
+    assert resp.status_code == 200
+    assert resp.json() == json.loads(MOCK_RECORDS_LISTING)
+
 def test_get_records(client):
+    # fire db api return error
+    with patch('service.resources.records.FireRequest.get') as mock_get:
+        mock_get.return_value.status_code = 500
+        response = client.simulate_get("/records")
+    assert response.status_code == 500
+    response_json = json.loads(response.text)
+    assert response_json['message'] == Records.ERROR_MSG
+
     # happy path
     with patch('service.resources.records.FireRequest.get') as mock_get:
         mock_get.return_value.status_code = 200
@@ -114,7 +133,7 @@ def test_get_records(client):
     assert response_json['data'] == json.loads(MOCK_RECORDS_LISTING)
 
 def test_create_record(client):
-    # fire api returns error
+    # fire db api returns error
     with patch('service.resources.records.FireRequest.post') as mock_post:
         mock_post.return_value.status_code = 500
         response = client.simulate_post("/records")
@@ -122,6 +141,15 @@ def test_create_record(client):
 
     response_json = json.loads(response.text)
     assert response_json['status'] == 'error'
+
+    # fire dbi api doesn't return id in header
+    with patch('service.resources.records.FireRequest.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.headers = {}
+        response = client.simulate_post("/records")
+    assert response.status_code == 500
+    response_json = json.loads(response.text)
+    assert response_json['status'] == 'fail'
 
     # happy path
     with patch('service.resources.records.FireRequest.post') as mock_post:
@@ -131,6 +159,7 @@ def test_create_record(client):
         }
         response = client.simulate_post("/records")
     assert response.status_code == 200
+    assert response.status == falcon.HTTP_200
     response_json = json.loads(response.text)
     assert response_json['status'] == 'success'
     assert isinstance(response_json['data']['id'], int)
