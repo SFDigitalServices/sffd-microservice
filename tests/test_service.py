@@ -110,6 +110,14 @@ def test_fire_request_get():
     assert resp.status_code == 200
     assert resp.json() == json.loads(MOCK_RECORDS_LISTING)
 
+def test_fire_request_post():
+    with patch('service.resources.fire_request.requests.post') as mock_post:
+        mock_post.return_value.status_code = 200
+
+        resp = FireRequest.post({})
+    assert resp.status_code == 200
+
+
 def test_get_records(client):
     # fire db api return error
     with patch('service.resources.records.FireRequest.get') as mock_get:

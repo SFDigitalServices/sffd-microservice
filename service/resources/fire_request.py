@@ -5,18 +5,15 @@ import requests
 class FireRequest():
     proxy_token = os.environ.get('DS_PROXY_TOKEN')
     api_key = os.environ.get('FIRE_API_KEY')
-
-    reqs = requests.Session()
-    reqs.headers.update({
-        'X-DS-PROXY-TOKEN': proxy_token,
-        'api_key': api_key
-    })
-
     url = os.environ.get('FIRE_DB_URL')
 
+    headers = {
+        'X-DS-PROXY-TOKEN': proxy_token,
+        'api_key': api_key
+    }
 
     def get():
-        return FireRequest.reqs.get(FireRequest.url)
+        return requests.get(FireRequest.url, headers=FireRequest.headers)
 
     def post(jsonParams):
-        return FireRequest.reqs.post(FireRequest.url, json=jsonParams)
+        return FireRequest.reqs.post(FireRequest.url, headers=FireRequest.headers, json=jsonParams)
