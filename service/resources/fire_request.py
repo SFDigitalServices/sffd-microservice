@@ -16,4 +16,4 @@ class FireRequest():
         return requests.get(FireRequest.url, headers=FireRequest.headers)
 
     def post(jsonParams):
-        return FireRequest.reqs.post(FireRequest.url, headers=FireRequest.headers, json=jsonParams)
+        return requests.post(FireRequest.url, headers=FireRequest.headers, json=jsonParams)
