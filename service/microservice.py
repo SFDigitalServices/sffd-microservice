@@ -4,7 +4,7 @@ import json
 import jsend
 import sentry_sdk
 import falcon
-from .resources.welcome import Welcome
+from .resources.records import Records
 
 def start_service():
     """Start this service
@@ -14,8 +14,12 @@ def start_service():
     sentry_sdk.init(os.environ.get('SENTRY_DSN'))
     # Initialize Falcon
     api = falcon.API()
-    api.add_route('/welcome', Welcome())
+    api.add_route('/records', Records())
     api.add_sink(default_error, '')
+
+    api.req_options.auto_parse_form_urlencoded = True
+    api.req_options.strip_url_path_trailing_slash = True
+    
     return api
 
 def default_error(_req, resp):

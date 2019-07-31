@@ -59,4 +59,9 @@ jobs:
       - store_artifacts:
           path: test-reports
           destination: test-reports
-          
+
+experimental:
+  notify:
+    branches:
+      only:
+        - master

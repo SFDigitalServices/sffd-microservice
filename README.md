@@ -1,18 +1,11 @@
-# SFDS microservice.py [![CircleCI](https://badgen.net/circleci/github/SFDigitalServices/sffd-microservice-py/master)](https://circleci.com/gh/SFDigitalServices/sffd-microservice-py) [![Coverage Status](https://coveralls.io/repos/github/SFDigitalServices/sffd-microservice-py/badge.svg?branch=master)](https://coveralls.io/github/SFDigitalServices/sffd-microservice-py?branch=master)
-SFDS microservice.py jumpstarts your next python-based microservice. It consists of a skeleton boilerplate make up of
-* [falcon](https://falconframework.org/): bare-metal Python web API framework 
-* [gunicorn](https://gunicorn.org/): Python WSGI HTTP Server for UNIX
-* [pytest](https://docs.pytest.org/en/latest/): Python testing tool 
-* [pylint](https://www.pylint.org/): code analysis for Python
-* [sentry](https://sentry.io/): error tracking tool
-* [jsend](https://github.com/omniti-labs/jsend):  a specification for a simple, no-frills, JSON based format for application-level communication
-
-## Requirement
-* Python3 
-([Mac OS X](https://docs.python-guide.org/starting/install3/osx/) / [Windows](https://www.stuartellis.name/articles/python-development-windows/))
-* Pipenv & Virtual Environments ([virtualenv](https://docs.python-guide.org/dev/virtualenvs/#virtualenvironments-ref) / [virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/))
+# SFFD microservice.py [![CircleCI](https://badgen.net/circleci/github/SFDigitalServices/sffd-microservice-py/master)](https://circleci.com/gh/SFDigitalServices/sffd-microservice-py) [![Coverage Status](https://coveralls.io/repos/github/SFDigitalServices/sffd-microservice-py/badge.svg?branch=master)](https://coveralls.io/github/SFDigitalServices/sffd-microservice-py?branch=master)
 
 ## Get started
+
+The following environment variables need to be set:
+    FIRE_DB_URL - Url to the fire db
+    DS_PROXY_TOKEN - header value to access the proxy server
+    FIRE_API_KEY - header value to access the fire db
 
 Install Pipenv (if needed)
 > $ pip install --user pipenv
