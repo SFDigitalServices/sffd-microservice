@@ -11,6 +11,7 @@ from service.resources.fire_request import FireRequest
 from service.resources.records import Records
 from requests.models import Response
 from http.client import responses
+from test.support import EnvironmentVarGuard
 
 MOCK_RECORDS_LISTING = """{  
     "items":[
@@ -87,10 +88,21 @@ MOCK_RECORDS_LISTING = """{
     ]
 }"""
 
+CLIENT_HEADERS = {
+    "ACCESS_KEY": "1234567"
+}
+
 @pytest.fixture()
 def client():
     """ client fixture """
-    return testing.TestClient(service.microservice.start_service())
+    return testing.TestClient(app=service.microservice.start_service(), headers=CLIENT_HEADERS)
+
+def test_env():
+    """ Test environment variables """
+    env = EnvironmentVarGuard()
+    for key in CLIENT_HEADERS:
+        env.set(key, CLIENT_HEADERS[key])
+    return env
 
 def test_default_error(client):
     """Test default error response"""
@@ -121,30 +133,48 @@ def test_fire_request_post():
 def test_get_records(client):
     # fire db api return error
     with patch('service.resources.records.FireRequest.get') as mock_get:
-        mock_get.return_value.status_code = 500
-        response = client.simulate_get("/records")
+        env = test_env()
+        with env:
+            mock_get.return_value.status_code = 500
+            response = client.simulate_get("/records")
     assert response.status_code == 500
     response_json = json.loads(response.text)
     assert response_json['message'] == Records.ERROR_MSG
 
     # happy path
     with patch('service.resources.records.FireRequest.get') as mock_get:
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = json.loads(MOCK_RECORDS_LISTING)
-        mock_get.return_value.text.return_value = MOCK_RECORDS_LISTING
+        env = test_env()
+        with env:
+            mock_get.return_value.status_code = 200
+            mock_get.return_value.json.return_value = json.loads(MOCK_RECORDS_LISTING)
+            mock_get.return_value.text.return_value = MOCK_RECORDS_LISTING
 
-        response = client.simulate_get("/records")
+            response = client.simulate_get("/records")
     assert response.status_code == 200
     
     response_json = json.loads(response.text)
     assert response_json['status'] == 'success'
     assert response_json['data'] == json.loads(MOCK_RECORDS_LISTING)
 
+    # no access key
+    client_no_access_key = testing.TestClient(app=service.microservice.start_service())
+    with patch('service.resources.records.FireRequest.get') as mock_get:
+        env = test_env()
+        with env:
+            mock_get.return_value.status_code = 200
+            mock_get.return_value.json.return_value = json.loads(MOCK_RECORDS_LISTING)
+            mock_get.return_value.text.return_value = MOCK_RECORDS_LISTING
+
+            response = client_no_access_key.simulate_get("/records")
+    assert response.status_code == 403
+
 def test_create_record(client):
     # fire db api returns error
     with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 500
-        response = client.simulate_post("/records")
+        env = test_env()
+        with env:
+            mock_post.return_value.status_code = 500
+            response = client.simulate_post("/records")
     assert response.status_code == 500
 
     response_json = json.loads(response.text)
@@ -152,23 +182,68 @@ def test_create_record(client):
 
     # fire dbi api doesn't return id in header
     with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {}
-        response = client.simulate_post("/records")
+        env = test_env()
+        with env:
+            mock_post.return_value.status_code = 200
+            mock_post.return_value.headers = {}
+            response = client.simulate_post("/records")
     assert response.status_code == 500
     response_json = json.loads(response.text)
     assert response_json['status'] == 'fail'
 
     # happy path
     with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        response = client.simulate_post("/records")
+        env = test_env()
+        with env:
+            mock_post.return_value.status_code = 200
+            mock_post.return_value.headers = {
+                'id':1
+            }
+            response = client.simulate_post("/records")
     assert response.status_code == 200
     assert response.status == falcon.HTTP_200
     response_json = json.loads(response.text)
     assert response_json['status'] == 'success'
     assert isinstance(response_json['data']['id'], int)
-    
+
+    # no access key
+    client_no_access_key = testing.TestClient(app=service.microservice.start_service())
+    with patch('service.resources.records.FireRequest.post') as mock_post:
+        env = test_env()
+        with env:
+            mock_post.return_value.status_code = 200
+            mock_post.return_value.headers = {
+                'id':1
+            }
+            response = client_no_access_key.simulate_post("/records")
+    assert response.status_code == 403
+
+def test_access_key_not_set():
+    # allow everything
+    client_no_access_key = testing.TestClient(app=service.microservice.start_service())
+    with EnvironmentVarGuard() as mock_env:
+        mock_env.unset('ACCESS_KEY')
+
+        # records get
+        with patch('service.resources.records.FireRequest.get') as mock_get:
+            mock_get.return_value.status_code = 200
+            mock_get.return_value.json.return_value = json.loads(MOCK_RECORDS_LISTING)
+            mock_get.return_value.text.return_value = MOCK_RECORDS_LISTING
+            response = client_no_access_key.simulate_get("/records")
+        assert response.status_code == 200
+        response_json = json.loads(response.text)
+        assert response_json['status'] == 'success'
+        assert response_json['data'] == json.loads(MOCK_RECORDS_LISTING)
+
+        # records post
+        with patch('service.resources.records.FireRequest.post') as mock_post:
+            mock_post.return_value.status_code = 200
+            mock_post.return_value.headers = {
+                'id':1
+            }
+            response = client_no_access_key.simulate_post("/records")
+        assert response.status_code == 200
+        assert response.status == falcon.HTTP_200
+        response_json = json.loads(response.text)
+        assert response_json['status'] == 'success'
+        assert isinstance(response_json['data']['id'], int)
