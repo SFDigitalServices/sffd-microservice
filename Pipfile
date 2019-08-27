@@ -15,7 +15,6 @@ sentry-sdk = "*"
 pytest = "*"
 pytest-cov = "*"
 requests = "*"
-test = "*"
 
 [requires]
 python_version = "3.7.3"
