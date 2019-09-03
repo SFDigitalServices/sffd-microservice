@@ -154,7 +154,7 @@ def test_get_records(client, mock_env_access_key):
     assert response_json['status'] == 'success'
     assert response_json['data'] == json.loads(MOCK_RECORDS_LISTING)
 
-    # no access key
+    # no access key from client
     client_no_access_key = testing.TestClient(app=service.microservice.start_service())
     with patch('service.resources.records.FireRequest.get') as mock_get:
         mock_get.return_value.status_code = 200
@@ -196,7 +196,7 @@ def test_create_record(client, mock_env_access_key):
     assert response_json['status'] == 'success'
     assert isinstance(response_json['data']['id'], int)
 
-    # no access key
+    # no access key from client
     client_no_access_key = testing.TestClient(app=service.microservice.start_service())
     with patch('service.resources.records.FireRequest.post') as mock_post:
         mock_post.return_value.status_code = 200
@@ -207,7 +207,7 @@ def test_create_record(client, mock_env_access_key):
     assert response.status_code == 403
 
 def test_access_key_not_set(mock_env_missing):
-    # allow everything
+    # access key environment is not set on server
     client_no_access_key = testing.TestClient(app=service.microservice.start_service())
     # records get
     with patch('service.resources.records.FireRequest.get') as mock_get:
@@ -215,10 +215,7 @@ def test_access_key_not_set(mock_env_missing):
         mock_get.return_value.json.return_value = json.loads(MOCK_RECORDS_LISTING)
         mock_get.return_value.text.return_value = MOCK_RECORDS_LISTING
         response = client_no_access_key.simulate_get("/records")
-    assert response.status_code == 200
-    response_json = json.loads(response.text)
-    assert response_json['status'] == 'success'
-    assert response_json['data'] == json.loads(MOCK_RECORDS_LISTING)
+    assert response.status_code == 403
 
     # records post
     with patch('service.resources.records.FireRequest.post') as mock_post:
@@ -227,8 +224,4 @@ def test_access_key_not_set(mock_env_missing):
             'id':1
         }
         response = client_no_access_key.simulate_post("/records")
-    assert response.status_code == 200
-    assert response.status == falcon.HTTP_200
-    response_json = json.loads(response.text)
-    assert response_json['status'] == 'success'
-    assert isinstance(response_json['data']['id'], int)
+    assert response.status_code == 403

@@ -6,7 +6,7 @@ The following environment variables need to be set:
     FIRE_DB_URL - Url to the fire db
     DS_PROXY_TOKEN - header value to access the proxy server
     FIRE_API_KEY - header value to access the fire db
-    ACCESS_KEY (optional) - access key to lock down access (for example, only respond to requests from apigee)
+    ACCESS_KEY - access key to lock down access (for example, only respond to requests from apigee)
 
 Install Pipenv (if needed)
 > $ pip install --user pipenv
