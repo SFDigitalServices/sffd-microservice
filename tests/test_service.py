@@ -1,5 +1,6 @@
 # pylint: disable=redefined-outer-name
 """Tests"""
+import os
 import json
 import jsend
 import pytest
@@ -87,10 +88,23 @@ MOCK_RECORDS_LISTING = """{
     ]
 }"""
 
-@pytest.fixture()
+CLIENT_HEADERS = {
+    "ACCESS_KEY": "1234567"
+}
+
+@pytest.fixture
 def client():
     """ client fixture """
-    return testing.TestClient(service.microservice.start_service())
+    return testing.TestClient(app=service.microservice.start_service(), headers=CLIENT_HEADERS)
+
+@pytest.fixture
+def mock_env_access_key(monkeypatch):
+    header_key = "ACCESS_KEY"
+    monkeypatch.setenv(header_key, CLIENT_HEADERS[header_key])
+
+@pytest.fixture
+def mock_env_missing(monkeypatch):
+    monkeypatch.delenv("ACCESS_KEY", raising=False)
 
 def test_default_error(client):
     """Test default error response"""
@@ -118,7 +132,7 @@ def test_fire_request_post():
     assert resp.status_code == 200
 
 
-def test_get_records(client):
+def test_get_records(client, mock_env_access_key):
     # fire db api return error
     with patch('service.resources.records.FireRequest.get') as mock_get:
         mock_get.return_value.status_code = 500
@@ -140,7 +154,17 @@ def test_get_records(client):
     assert response_json['status'] == 'success'
     assert response_json['data'] == json.loads(MOCK_RECORDS_LISTING)
 
-def test_create_record(client):
+    # no access key from client
+    client_no_access_key = testing.TestClient(app=service.microservice.start_service())
+    with patch('service.resources.records.FireRequest.get') as mock_get:
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = json.loads(MOCK_RECORDS_LISTING)
+        mock_get.return_value.text.return_value = MOCK_RECORDS_LISTING
+
+        response = client_no_access_key.simulate_get("/records")
+    assert response.status_code == 403
+
+def test_create_record(client, mock_env_access_key):
     # fire db api returns error
     with patch('service.resources.records.FireRequest.post') as mock_post:
         mock_post.return_value.status_code = 500
@@ -171,4 +195,33 @@ def test_create_record(client):
     response_json = json.loads(response.text)
     assert response_json['status'] == 'success'
     assert isinstance(response_json['data']['id'], int)
-    
+
+    # no access key from client
+    client_no_access_key = testing.TestClient(app=service.microservice.start_service())
+    with patch('service.resources.records.FireRequest.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.headers = {
+            'id':1
+        }
+        response = client_no_access_key.simulate_post("/records")
+    assert response.status_code == 403
+
+def test_access_key_not_set(mock_env_missing):
+    # access key environment is not set on server
+    client_no_access_key = testing.TestClient(app=service.microservice.start_service())
+    # records get
+    with patch('service.resources.records.FireRequest.get') as mock_get:
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = json.loads(MOCK_RECORDS_LISTING)
+        mock_get.return_value.text.return_value = MOCK_RECORDS_LISTING
+        response = client_no_access_key.simulate_get("/records")
+    assert response.status_code == 403
+
+    # records post
+    with patch('service.resources.records.FireRequest.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.headers = {
+            'id':1
+        }
+        response = client_no_access_key.simulate_post("/records")
+    assert response.status_code == 403

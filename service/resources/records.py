@@ -4,7 +4,9 @@ from http.client import responses
 import falcon
 import jsend
 from .fire_request import FireRequest
+from .hooks import validate_access
 
+@falcon.before(validate_access)
 class Records():
     """Records Controller"""
     ERROR_MSG = 'There was a problem communicating with the fired db api'
