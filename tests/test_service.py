@@ -172,6 +172,15 @@ def post_params():
         'block': 'block'
     }
 
+def post_response_with_successful_fire_api_mock(client, params):
+    with patch('service.resources.records.FireRequest.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.headers = {
+            'id':1
+        }
+        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    return response
+
 def test_create_record(client, mock_env_access_key):
     # #######################################
     # fire db api returns error
@@ -197,14 +206,11 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # missing dbi_no
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params.pop('dbi_no')
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params.pop('dbi_no')
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -213,14 +219,11 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # missing block
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params.pop('block')
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params.pop('block')
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -229,14 +232,11 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # missing lot
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params.pop('lot')
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params.pop('lot')
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -245,14 +245,11 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # invalid dbi_no length
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['dbi_no'] = 1234567
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params['dbi_no'] = 1234567
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -261,14 +258,11 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # invalid dbi_no non digits
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['dbi_no'] = '2019010143ab'
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params['dbi_no'] = '2019010143ab'
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -277,14 +271,11 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # invalid dbi_no length
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['dbi_no'] = 1234567
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params['dbi_no'] = 1234567
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -293,14 +284,11 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # invalid dbi_no month
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['dbi_no'] = 201913091234
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params['dbi_no'] = 201913091234
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -309,14 +297,11 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # invalid dbi_no day
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['dbi_no'] = 201909321234
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params['dbi_no'] = 201909321234
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -325,14 +310,11 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # invalid dbi_no nonexistant date
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['dbi_no'] = 201902291234
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params['dbi_no'] = 201902291234
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -341,27 +323,18 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # job_size must be int
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['job_size'] = "5,000"
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params['job_size'] = "5,000"
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 200
     assert response.status == falcon.HTTP_200
     response_json = json.loads(response.text)
     assert response_json['status'] == 'success'
 
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['job_size'] = "50A"
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params['job_size'] = "50A"
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
@@ -370,69 +343,50 @@ def test_create_record(client, mock_env_access_key):
     # #######################################
     # dbi_date in YYYY/MM/DD format
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['dbi_date'] = "2019/09/10"
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params = post_params()
+    params['dbi_date'] = "2019/09/10"
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 200
     assert response.status == falcon.HTTP_200
     response_json = json.loads(response.text)
     assert response_json['status'] == 'success'
 
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['dbi_date'] = "20190910"
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params['dbi_date'] = "20190910"
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
     assert response_json['status'] == 'error'
 
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        params = post_params()
-        params['dbi_date'] = "Dec 25, 2001"
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(params))
+    params['dbi_date'] = "Dec 25, 2001"
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client, params)
     assert response.status_code == 400
     assert response.status == falcon.HTTP_400
     response_json = json.loads(response.text)
     assert response_json['status'] == 'error'
+
+    # #######################################
+    # no access key from client
+    # #######################################
+    client_no_access_key = testing.TestClient(app=service.microservice.start_service())
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client_no_access_key, post_params())
+    assert response.status_code == 403
 
     # #######################################
     # happy path
     # #######################################
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        response = client.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(post_params()))
+    response = post_response_with_successful_fire_api_mock(client, post_params())
     assert response.status_code == 200
     assert response.status == falcon.HTTP_200
     response_json = json.loads(response.text)
     assert response_json['status'] == 'success'
     assert isinstance(response_json['data']['id'], int)
-
-    # no access key from client
-    client_no_access_key = testing.TestClient(app=service.microservice.start_service())
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        response = client_no_access_key.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(post_params()))
-    assert response.status_code == 403
 
 def test_access_key_not_set(mock_env_missing):
     # access key environment is not set on server
@@ -446,10 +400,7 @@ def test_access_key_not_set(mock_env_missing):
     assert response.status_code == 403
 
     # records post
-    with patch('service.resources.records.FireRequest.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.headers = {
-            'id':1
-        }
-        response = client_no_access_key.simulate_post("/records", headers={'Content-Type': 'application/x-www-form-urlencoded'}, body=urlencode(post_params()))
+    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # if fire api gets called, response will return success where we are expecting an error
+    response = post_response_with_successful_fire_api_mock(client_no_access_key, post_params())
     assert response.status_code == 403
