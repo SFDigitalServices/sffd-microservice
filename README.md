@@ -14,8 +14,8 @@ Install Pipenv (if needed)
 Install included packages
 > $ pipenv install
 
-Start WSGI Server
-> $ pipenv run gunicorn 'service.microservice:start_service()'
+Set ACCESS_KEY environment var and start WSGI Server
+> $ ACCESS_KEY=123456 pipenv run gunicorn 'service.microservice:start_service()'
 
 Run Pytest
 > $ pipenv run python -m pytest
@@ -24,7 +24,7 @@ Get code coverage report
 > $ pipenv run python -m pytest --cov=service tests/ --cov-fail-under=100
 
 Open with cURL or web browser
-> $curl http://127.0.0.1:8000/welcome
+> $ curl --header "ACCESS_KEY: 123456" http://127.0.0.1:8000/welcome
 
 ## How to fork in own repo (SFDigitalServices use only)
 reference: [How to fork your own repo in Github](http://kroltech.com/2014/01/01/quick-tip-how-to-fork-your-own-repo-in-github/)
@@ -55,7 +55,18 @@ Psst: Don’t forget to upload the fresh copy of your new repo back up to git:
 
 > $ git push origin master
 
-## Troubleshooting
+## Development 
+Auto-reload on code changes
+> $ pipenv run gunicorn --reload 'service.microservice:start_service()'
+
+Code coverage command with missing statement line numbers  
+> $ pipenv run python -m pytest --cov=service tests/ --cov-report term-missing
+
+
+## Continuous integration
 * CircleCI builds fail when trying to run coveralls.
     1. Log into coveralls.io to obtain the coverall token for your repo.
     2. Create an environment variable in CircleCI with the name COVERALLS_REPO_TOKEN and the coverall token value.
+
+## Heroku Integration
+* Set ACCESS_TOKEN environment variable and pass it as a header in requests

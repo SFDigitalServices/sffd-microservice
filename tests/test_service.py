@@ -103,11 +103,7 @@ def mock_env_access_key(monkeypatch):
     header_key = "ACCESS_KEY"
     monkeypatch.setenv(header_key, CLIENT_HEADERS[header_key])
 
-@pytest.fixture
-def mock_env_missing(monkeypatch):
-    monkeypatch.delenv("ACCESS_KEY", raising=False)
-
-def test_default_error(client):
+def test_default_error(client, mock_env_access_key):
     """Test default error response"""
     response = client.simulate_get('/some_page_that_does_not_exist')
 
@@ -131,7 +127,6 @@ def test_fire_request_post():
 
         resp = FireRequest.post({})
     assert resp.status_code == 200
-
 
 def test_get_records(client, mock_env_access_key):
     # fire db api return error
@@ -387,20 +382,3 @@ def test_create_record(client, mock_env_access_key):
     response_json = json.loads(response.text)
     assert response_json['status'] == 'success'
     assert isinstance(response_json['data']['id'], int)
-
-def test_access_key_not_set(mock_env_missing):
-    # access key environment is not set on server
-    client_no_access_key = testing.TestClient(app=service.microservice.start_service())
-    # records get
-    with patch('service.resources.records.FireRequest.get') as mock_get:
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = json.loads(MOCK_RECORDS_LISTING)
-        mock_get.return_value.text.return_value = MOCK_RECORDS_LISTING
-        response = client_no_access_key.simulate_get("/records")
-    assert response.status_code == 403
-
-    # records post
-    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
-    # if fire api gets called, response will return success where we are expecting an error
-    response = post_response_with_successful_fire_api_mock(client_no_access_key, post_params())
-    assert response.status_code == 403
