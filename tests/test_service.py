@@ -276,44 +276,45 @@ def test_create_record(client, mock_env_access_key):
     response_json = json.loads(response.text)
     assert response_json['status'] == 'error'
 
-    # #######################################
-    # invalid dbi_no month
-    # #######################################
-    params = post_params()
-    params['dbi_no'] = 201913091234
-    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
-    # if fire api gets called, response will return success where we are expecting an error
-    response = post_response_with_successful_fire_api_mock(client, params)
-    assert response.status_code == 400
-    assert response.status == falcon.HTTP_400
-    response_json = json.loads(response.text)
-    assert response_json['status'] == 'error'
+    # These tests are commented out to allow for fake dbi_no
+    # # #######################################
+    # # invalid dbi_no month
+    # # #######################################
+    # params = post_params()
+    # params['dbi_no'] = 201913091234
+    # # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # # if fire api gets called, response will return success where we are expecting an error
+    # response = post_response_with_successful_fire_api_mock(client, params)
+    # assert response.status_code == 400
+    # assert response.status == falcon.HTTP_400
+    # response_json = json.loads(response.text)
+    # assert response_json['status'] == 'error'
 
-    # #######################################
-    # invalid dbi_no day
-    # #######################################
-    params = post_params()
-    params['dbi_no'] = 201909321234
-    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
-    # if fire api gets called, response will return success where we are expecting an error
-    response = post_response_with_successful_fire_api_mock(client, params)
-    assert response.status_code == 400
-    assert response.status == falcon.HTTP_400
-    response_json = json.loads(response.text)
-    assert response_json['status'] == 'error'
+    # # #######################################
+    # # invalid dbi_no day
+    # # #######################################
+    # params = post_params()
+    # params['dbi_no'] = 201909321234
+    # # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # # if fire api gets called, response will return success where we are expecting an error
+    # response = post_response_with_successful_fire_api_mock(client, params)
+    # assert response.status_code == 400
+    # assert response.status == falcon.HTTP_400
+    # response_json = json.loads(response.text)
+    # assert response_json['status'] == 'error'
 
-    # #######################################
-    # invalid dbi_no nonexistant date
-    # #######################################
-    params = post_params()
-    params['dbi_no'] = 201902291234
-    # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
-    # if fire api gets called, response will return success where we are expecting an error
-    response = post_response_with_successful_fire_api_mock(client, params)
-    assert response.status_code == 400
-    assert response.status == falcon.HTTP_400
-    response_json = json.loads(response.text)
-    assert response_json['status'] == 'error'
+    # # #######################################
+    # # invalid dbi_no nonexistant date
+    # # #######################################
+    # params = post_params()
+    # params['dbi_no'] = 201902291234
+    # # fire api is mocked to succeed, but error should be returned before and fire api shouldn't be called
+    # # if fire api gets called, response will return success where we are expecting an error
+    # response = post_response_with_successful_fire_api_mock(client, params)
+    # assert response.status_code == 400
+    # assert response.status == falcon.HTTP_400
+    # response_json = json.loads(response.text)
+    # assert response_json['status'] == 'error'
 
     # #######################################
     # job_size must be int

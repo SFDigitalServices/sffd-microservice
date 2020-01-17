@@ -36,12 +36,17 @@ class Records():
         is_valid_dbi_no = False
         dbi_no = req.params.get('dbi_no')
         if len(dbi_no) == 12 and re.match(r'\d+$', dbi_no) is not None:
-            date_part = dbi_no[:8]
-            try:
-                datetime.datetime.strptime(date_part, '%Y%m%d')
-                is_valid_dbi_no = True
-            except:
-                pass
+            is_valid_dbi_no = True
+            # The following lines of code are commented out in order to enable fake dbi_no.
+            # Keeping the code around in case fake dbi_no are no longer necessary.
+            # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            # date_part = dbi_no[:8]
+            # try:
+            #     datetime.datetime.strptime(date_part, '%Y%m%d')
+            #     is_valid_dbi_no = True
+            # except:
+            #     pass
+            # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         if not is_valid_dbi_no:
             resp.body = json.dumps(jsend.error("invalid dbi_no"))
             resp.status = falcon.HTTP_400
